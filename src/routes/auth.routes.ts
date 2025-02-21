@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { signUp, signIn, completeSignup } from "../controllers/auth.controller";
+import { signUp, signIn, completeSignup, sendVerification, verifyEmail } from "../controllers/auth.controller";
 import "../config/passport"; // Import passport configurations
 import { signupSchema } from "../validators/authValidator";
 import validateRequest from "../middlewares/validateRequest";
@@ -46,5 +46,7 @@ router.get(
 );
 
 router.post("/complete-signup", asyncHandler(completeSignup));
+router.post("/send-verification", sendVerification);
+router.post("/verify-email", verifyEmail);
 
 export default router;

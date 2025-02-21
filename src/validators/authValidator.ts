@@ -24,3 +24,25 @@ export const completeSignupSchema = Joi.object({
   lastName: Joi.string().min(2).max(50).required(),
   dateOfBirth: Joi.date().iso().required(), // Must be a valid date
 });
+
+// Validate sending email verification
+export const validateSendVerification = (data: { email: string }) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+  });
+
+  return schema.validate(data);
+};
+
+// Validate email verification code
+export const validateVerifyEmail = (data: { email: string; code: string }) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    code: Joi.string().length(6).pattern(/^\d+$/).required().messages({
+      "string.length": "Code must be exactly 6 digits",
+      "string.pattern.base": "Code must contain only numbers",
+    }),
+  });
+
+  return schema.validate(data);
+};

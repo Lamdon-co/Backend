@@ -8,8 +8,14 @@ const UserSchema = new mongoose.Schema(
     firstName: { type: String },
     lastName: { type: String },
     dateOfBirth: { type: Date },
-    authProvider: { type: String, enum: ["email", "phone", "google", "facebook", "apple"], required: true },
+    authProvider: {
+      type: String,
+      enum: ["email", "phone", "google", "facebook", "apple"],
+      required: true,
+    },
     providerId: { type: String, unique: true, sparse: true }, // For OAuth users
+    verificationCode: { type: String },
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
