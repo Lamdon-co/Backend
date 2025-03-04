@@ -8,7 +8,6 @@ import helmet from "helmet";
 import passport from "passport";
 import session from "express-session";
 import authRoutes from "./routes/auth.routes";
-import mainRoutes from "./routes/main.routes";
 import userRoutes from "./routes/user.routes";
 
 import "./config/passport"; // Ensure passport config is loaded
@@ -19,7 +18,6 @@ import { authorizeUser } from "./middlewares/apiKeyValidator";
 
 // console.log(encrypt(""))
 
-
 const app = express();
 
 // Middleware
@@ -29,15 +27,25 @@ app.use(morgan("dev"));
 app.use(helmet());
 
 // Express session for OAuth
-app.use(session({ secret: process.env.SESSION_SECRET!, resave: false, saveUninitialized: true }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use(mainRoutes);
+app.get("/", (req, res) => {
+  res
+    .status(200)
+    .json({ status: "success", message: "Lamdon API is up and running" });
+});
 app.use("/v1/auth", authorizeUser, authRoutes);
 app.use("/v1/account", authorizeUser, userRoutes);
-app.use("*", NotFound)
+app.use("*", NotFound);
 
 // Error Handling Middleware
 app.use(errorHandler);

@@ -1,10 +1,16 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 interface INotification {
   type: string;
   message: string;
   isRead: boolean;
   createdAt: Date;
+}
+
+interface IEmergencyContact {
+  name: string;
+  phone: string;
+  relationship: string;
 }
 
 export interface IUser extends Document {
@@ -19,9 +25,12 @@ export interface IUser extends Document {
   verificationCode?: string;
   notifications: INotification[];
   notificationsEnabled: boolean;
+  address?: string;
+  emergencyContact?: IEmergencyContact;
+  kyc?: mongoose.Types.ObjectId; // 🔹 Reference to the KYC model
 }
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
   {
     email: { type: String, unique: true, sparse: true },
     phone: { type: String, unique: true, sparse: true },
@@ -46,6 +55,15 @@ const UserSchema = new mongoose.Schema(
       },
     ],
     notificationsEnabled: { type: Boolean, default: true },
+
+    // 🔹 New Fields
+    address: { type: String }, // Physical address
+    emergencyContact: {
+      name: { type: String },
+      phone: { type: String },
+      relationship: { type: String },
+    },
+    kyc: { type: Schema.Types.ObjectId, ref: "KYC" }, // 🔹 References KYC Model
   },
   { timestamps: true }
 );

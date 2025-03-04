@@ -8,3 +8,16 @@ export const validateToggleNotification = (data: { enable: boolean }) => {
 
   return schema.validate(data);
 };
+
+
+// ✅ Validation Schema for Updating Profile
+export const profileUpdateSchema = Joi.object({
+  firstName: Joi.string().optional(),
+  lastName: Joi.string().optional(),
+  address: Joi.string().optional(),
+  emergencyContact: Joi.object({
+    name: Joi.string().required(),
+    phone: Joi.string().required(),
+    relationship: Joi.string().required(),
+  }).optional(),
+});
