@@ -46,3 +46,14 @@ export const validateVerifyEmail = (data: { email: string; code: string }) => {
 
   return schema.validate(data);
 };
+
+
+export const validateSignIn = (data: { email?: string; phoneNumber?: string; password: string }) => {
+  return Joi.object({
+    email: Joi.string().email().optional(),
+    phone: Joi.string().pattern(/^[0-9]+$/).optional(),
+    password: Joi.string().min(6).required(),
+  })
+    .or("email", "phone") // At least one must be provided
+    .validate(data);
+};

@@ -1,12 +1,37 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
-import { Strategy as AppleStrategy } from "passport-apple";
+import jwt from "jsonwebtoken";
 import User from "../models/user.model";
+import { AppError } from "../middlewares/errorHandler";
 
-// console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID);
-// console.log("Google Client Secret:", process.env.GOOGLE_CLIENT_SECRET);
+// Helper function to handle OAuth login or registration
+const handleOAuthUser = async (
+  provider: "google" | "facebook",
+  profile: any
+) => {
+  try {
+    let user = await User.findOne({ providerId: profile.id, authProvider: provider });
 
+    if (!user) {
+      // Create new user if they don’t exist
+      user = await User.create({
+        providerId: profile.id,
+        email: profile.emails?.[0]?.value,
+        firstname: profile.name?.givenName,
+        lastname: profile.name?.familyName,
+        authProvider: provider,
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
+
+    return { user, token };
+  } catch (error) {
+    throw new AppError("OAuth Authentication Failed", 500);
+  }
+};
 
 // Google OAuth Strategy
 passport.use(
@@ -19,22 +44,8 @@ passport.use(
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({
-          providerId: profile.id,
-          authProvider: "google",
-        });
-
-        if (!user) {
-          user = await User.create({
-            providerId: profile.id,
-            email: profile.emails?.[0].value,
-            firstname: profile.name?.givenName,
-            lastname: profile.name?.familyName,
-            authProvider: "google",
-          });
-        }
-
-        return done(null, user);
+        const { user, token } = await handleOAuthUser("google", profile);
+        return done(null, { user, token });
       } catch (error) {
         return done(error, false);
       }
@@ -53,22 +64,8 @@ passport.use(
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({
-          providerId: profile.id,
-          authProvider: "facebook",
-        });
-
-        if (!user) {
-          user = await User.create({
-            providerId: profile.id,
-            email: profile.emails?.[0].value,
-            firstname: profile.name?.givenName,
-            lastname: profile.name?.familyName,
-            authProvider: "facebook",
-          });
-        }
-
-        return done(null, user);
+        const { user, token } = await handleOAuthUser("facebook", profile);
+        return done(null, { user, token });
       } catch (error) {
         return done(error, false);
       }
@@ -76,57 +73,8 @@ passport.use(
   )
 );
 
-// Apple OAuth Strategy
-// passport.use(
-//   new AppleStrategy(
-//     {
-//       clientID: process.env.APPLE_CLIENT_ID!,
-//       teamID: process.env.APPLE_TEAM_ID!,
-//       keyID: process.env.APPLE_KEY_ID!,
-//       privateKey: process.env.APPLE_PRIVATE_KEY!,
-//       callbackURL: "/api/auth/apple/callback",
-//       scope: ["name", "email"],
-//     },
-//     async (
-//       _accessToken: string,
-//       _refreshToken: string,
-//       profile: {
-//         id: string;
-//         email: string;
-//         name: { firstName: string; lastName: string };
-//       },
-//       done: any
-//     ) => {
-//       try {
-//         let user = await User.findOne({
-//           providerId: profile.id,
-//           authProvider: "apple",
-//         });
-
-//         if (!user) {
-//           user = await User.create({
-//             providerId: profile.id,
-//             email: profile.email,
-//             firstname: profile.name?.firstName,
-//             lastname: profile.name?.lastName,
-//             authProvider: "apple",
-//           });
-//         }
-
-//         return done(null, user);
-//       } catch (error) {
-//         return done(error, false);
-//       }
-//     }
-//   )
-// );
-
 // Serialize & Deserialize User
-passport.serializeUser((user: any, done) => done(null, user.id));
-passport.deserializeUser((id, done) => {
-  User.findById(id)
-    .then((user) => done(null, user))
-    .catch((err) => done(err, null));
-});
+passport.serializeUser((user: any, done) => done(null, user));
+passport.deserializeUser((user: any, done) => done(null, user));
 
 export default passport;
