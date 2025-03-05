@@ -1,15 +1,14 @@
-import { cloudinaryConfig } from "../config/cloudinary";
+const cloudinary = require("cloudinary").v2;
 
-
-export const uploadToCloudinary = async (fileBuffer: Buffer, folder: string) => {
+export const uploadToCloudinary = async (image: string, folder: string) => {
   return new Promise((resolve, reject) => {
-    const uploadStream = cloudinaryConfig.uploader.upload_stream(
+    cloudinary.uploader.upload(
+      image,
       { folder },
       (error: any, result: any) => {
         if (error) return reject(error);
         resolve(result?.secure_url);
       }
     );
-    uploadStream.end(fileBuffer);
   });
 };

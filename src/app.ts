@@ -15,8 +15,11 @@ import { NotFound } from "./controllers/main.controller";
 import { errorHandler } from "./middlewares/errorHandler";
 // import { encrypt } from "./utils/encrypt";
 import { authorizeUser } from "./middlewares/apiKeyValidator";
+import { cloudinaryConfig } from "./config/cloudinary";
 
 // console.log(encrypt(""))
+
+cloudinaryConfig()
 
 const app = express();
 
