@@ -14,6 +14,7 @@ interface IEmergencyContact {
 }
 
 export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
   email: string;
   phone: string;
   password: string;
