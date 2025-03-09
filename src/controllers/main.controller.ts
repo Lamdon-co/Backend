@@ -10,7 +10,7 @@ export const Home = async (req: Request, res: Response) => {
 
 export const NotFound = async (req: Request, res: Response) => {
   try {
-    res.status(404).json({ status: "success", message: "Oops!, Seems you lost your way, Find your way back home" });
+    res.status(404).json({ status: "error", message: "Oops!, Seems you lost your way, Find your way back home" });
   } catch (error: any) {
     res.status(400).json({ status: "error", message: error.message });
   }

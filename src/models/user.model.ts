@@ -22,6 +22,7 @@ export interface IUser extends Document {
   lastName: string;
   dateOfBirth: Date;
   authProvider: string;
+  role: string;
   isVerified: boolean;
   verificationCode?: string;
   notifications: INotification[];
@@ -42,6 +43,12 @@ const UserSchema = new Schema(
     authProvider: {
       type: String,
       enum: ["email", "phone", "google", "facebook", "apple"],
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["user", "hoster", "admin"],
+      default: "user",
       required: true,
     },
     providerId: { type: String, unique: true, sparse: true }, // For OAuth users
