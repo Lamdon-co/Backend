@@ -1,10 +1,13 @@
 import express from "express";
 import authMiddleware from "../middlewares/auth.middleware";
 import upload from "../middlewares/upload";
-import { addListing, deactivateListing, deleteListing, updateListing } from "../controllers/listing.controller";
+import { addListing, deactivateListing, deleteListing, getAllListings, getListingById, searchListings, updateListing } from "../controllers/listing.controller";
 
 const router = express.Router();
 
+router.get("/all", authMiddleware, getAllListings);
+router.get("/search", authMiddleware, searchListings);
+router.get("/:id", authMiddleware, getListingById);
 router.post(
   "/add",
   authMiddleware,

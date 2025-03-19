@@ -13,6 +13,90 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
+// Fetch All Active Listings
+export const getAllListings = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const listings = await Listing.find({ status: "active" }).populate(
+      "postedBy",
+      "name email"
+    );
+
+    res.json({
+      status: "success",
+      count: listings.length,
+      listings,
+    });
+  }
+);
+
+// Search Listings
+export const searchListings = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { keyword, location, minPrice, maxPrice, type, guests } = req.query;
+
+    const filters: any = { status: "active" };
+
+    if (keyword) {
+      filters.$or = [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ];
+    }
+
+    if (location) {
+      filters["address.city"] = { $regex: location, $options: "i" };
+    }
+
+    if (type) {
+      filters.listingType = type;
+    }
+
+    if (guests) {
+      filters["accommodation.guests"] = { $gte: Number(guests) };
+    }
+
+    if (minPrice) {
+      filters.price = { ...filters.price, $gte: Number(minPrice) };
+    }
+
+    if (maxPrice) {
+      filters.price = { ...filters.price, $lte: Number(maxPrice) };
+    }
+
+    const listings = await Listing.find(filters).populate(
+      "postedBy",
+      "name email"
+    );
+
+    res.json({
+      status: "success",
+      count: listings.length,
+      listings,
+    });
+  }
+);
+
+export const getListingById = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    const listing = await Listing.findOne({ _id: id, status: "active" })
+      .populate("postedBy", "name email firstName")
+      .exec();
+
+    if (!listing) {
+      return next(
+        new AppError("Listing not found or has been deactivated", 404)
+      );
+    }
+
+    res.json({
+      status: "success",
+      listing,
+    });
+  }
+);
+
 // Add New Listing
 export const addListing = asyncHandler(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -109,7 +193,10 @@ export const updateListing = asyncHandler(
       return next(new AppError("User not found", 404));
     }
 
-    if (user.role !== "hoster" || listing.postedBy.toString() !== req.user._id) {
+    if (
+      user.role !== "hoster" ||
+      listing.postedBy.toString() !== req.user._id
+    ) {
       return next(
         new AppError("You are not authorized to update this listing", 403)
       );
@@ -142,7 +229,10 @@ export const deactivateListing = asyncHandler(
       return next(new AppError("Listing not found", 404));
     }
 
-    if (user.role !== "hoster" || listing.postedBy.toString() !== req.user._id) {
+    if (
+      user.role !== "hoster" ||
+      listing.postedBy.toString() !== req.user._id
+    ) {
       return next(
         new AppError("You are not authorized to update this listing", 403)
       );

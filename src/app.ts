@@ -10,6 +10,7 @@ import session from "express-session";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import listingRoutes from "./routes/listing.routes";
+import bookingRoutes from "./routes/booking.routes";
 
 import "./config/passport"; // Ensure passport config is loaded
 import { NotFound } from "./controllers/main.controller";
@@ -50,6 +51,7 @@ app.get("/", (req, res) => {
 app.use("/v1/auth", authorizeUser, authRoutes);
 app.use("/v1/account", authorizeUser, userRoutes);
 app.use("/v1/listing", authorizeUser, listingRoutes);
+app.use("/v1/booking", authorizeUser, bookingRoutes);
 app.use("*", NotFound);
 
 // Error Handling Middleware
