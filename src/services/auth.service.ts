@@ -25,7 +25,7 @@ export const registerUser = async (
     providerId,
   });
 
-  return { user, token: generateToken(user._id.toString()) };
+  return { user };
 };
 
 export const loginUser = async (email: string, password: string) => {

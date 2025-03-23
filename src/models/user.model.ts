@@ -29,6 +29,7 @@ export interface IUser extends Document {
   notificationsEnabled: boolean;
   address?: string;
   emergencyContact?: IEmergencyContact;
+  refreshToken: string,
   kyc?: mongoose.Types.ObjectId; // 🔹 Reference to the KYC model
 }
 
@@ -71,6 +72,7 @@ const UserSchema = new Schema(
       phone: { type: String },
       relationship: { type: String },
     },
+    refreshToken: { type: String },
     kyc: { type: Schema.Types.ObjectId, ref: "KYC" }, // 🔹 References KYC Model
   },
   { timestamps: true }

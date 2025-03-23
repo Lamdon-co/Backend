@@ -19,11 +19,16 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { authorizeUser } from "./middlewares/apiKeyValidator";
 import { cloudinaryConfig } from "./config/cloudinary";
 
+import cookieParser from "cookie-parser";
+
 // console.log(encrypt(""))
 
 cloudinaryConfig()
 
 const app = express();
+
+app.use(cookieParser());
+
 
 // Middleware
 app.use(express.json());

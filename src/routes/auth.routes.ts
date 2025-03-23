@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { signUp, signIn, completeSignup, sendVerification, verifyEmail, googleAuth, googleAuthCallback, facebookAuth, facebookAuthCallback } from "../controllers/auth.controller";
+import { signUp, signIn, completeSignup, sendVerification, verifyEmail, googleAuth, googleAuthCallback, facebookAuth, facebookAuthCallback, refreshToken } from "../controllers/auth.controller";
 import "../config/passport"; // Import passport configurations
 import { signupSchema } from "../validators/authValidator";
 import validateRequest from "../middlewares/validateRequest";
@@ -23,5 +23,6 @@ router.get("/facebook/callback", facebookAuthCallback);
 router.post("/complete-signup", asyncHandler(completeSignup));
 router.post("/send-verification", sendVerification);
 router.post("/verify-email", verifyEmail);
+router.post("/refresh", refreshToken);
 
 export default router;
