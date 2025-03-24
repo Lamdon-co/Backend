@@ -26,6 +26,10 @@ export const googleAuth = passport.authenticate("google", {
   scope: ["profile", "email"],
 });
 
+interface AuthRequest extends Request {
+  user?: any;
+}
+
 export const googleAuthCallback = (
   req: Request,
   res: Response,
@@ -262,7 +266,7 @@ export const refreshToken = async (
   next: NextFunction
 ) => {
   console.log(req.cookies);
-  
+
   const token = req.cookies?.refreshToken; // Read from HTTP-only cookie
 
   if (!token) return next(new AppError("Refresh token required", 401));
@@ -298,3 +302,36 @@ export const refreshToken = async (
 
   res.json({ accessToken: newAccessToken });
 };
+
+// Switch to Hoster
+export const switchToHoster = asyncHandler(
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user?._id;
+
+    // Ensure user is logged in
+    if (!userId) {
+      return next(new AppError("Unauthorized. Please log in", 401));
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    // Check if the user is already a hoster
+    if (user.role === "hoster") {
+      return next(new AppError("You are already a hoster", 400));
+    }
+
+    // Update role to "hoster"
+    user.role = "hoster";
+    await user.save();
+
+    return res.json({
+      status: "success",
+      message: "You are now a hoster",
+      user: { id: user._id, email: user.email, role: user.role },
+    });
+  }
+);
