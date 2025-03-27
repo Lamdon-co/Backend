@@ -34,19 +34,10 @@ const ListingSchema = new Schema<IListing>(
     },
     listingType: {
       type: String,
-      enum: [
-        "House",
-        "Flat/Apartment",
-        "Semi detached bungalow",
-        "Semi detached duplex",
-        "Studio",
-        "Single room",
-      ],
       required: true,
     },
     placeType: {
       type: String,
-      enum: ["entire place", "shared room", "a room"],
       required: true,
     },
     status: {
